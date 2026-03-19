@@ -1,0 +1,197 @@
+/* Customer Support Page Styles */
+.customer-support-page {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+}
+
+/* Page Title */
+.customer-support-page h1 {
+  background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.customer-support-page .lead {
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #6c757d;
+}
+
+/* Support Cards */
+.support-card {
+  transition: all 0.3s ease;
+  border-left: 4px solid #0d6efd;
+  height: 100%;
+}
+
+.support-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(13, 110, 253, 0.15);
+  border-left-color: #0056b3;
+}
+
+.support-card h4 {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+/* Policy List */
+.policy-list > div {
+  margin-bottom: 0.5rem;
+}
+
+.policy-bullet {
+  width: 6px;
+  height: 6px;
+  background-color: #0d6efd;
+  border-radius: 50%;
+  margin-top: 8px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.policy-list span {
+  line-height: 1.5;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Contact Support Section */
+.contact-support-section {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(0, 86, 179, 0.1) 100%);
+  border: 1px solid rgba(13, 110, 253, 0.2);
+  transition: all 0.3s ease;
+}
+
+.contact-support-section:hover {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.15) 0%, rgba(0, 86, 179, 0.15) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+}
+
+.contact-support-section h3 {
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.contact-support-section .btn {
+  padding: 12px 24px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.contact-support-section .btn-primary {
+  background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+  border: none;
+  color: white;
+}
+
+.contact-support-section .btn-primary:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+}
+
+.contact-support-section .btn-outline-primary {
+  border: 2px solid #0d6efd;
+  color: #0d6efd;
+  background: transparent;
+}
+
+.contact-support-section .btn-outline-primary:hover {
+  background: #0d6efd;
+  border-color: #0056b3;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .customer-support-page h1 {
+    font-size: 2rem;
+  }
+  
+  .customer-support-page .lead {
+    font-size: 1.1rem;
+  }
+  
+  .support-card {
+    margin-bottom: 1.5rem;
+  }
+  
+  .support-card:hover {
+    transform: translateY(-3px);
+  }
+  
+  .contact-support-section {
+    padding: 2rem !important;
+  }
+  
+  .contact-support-section .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .contact-support-section .btn:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .customer-support-page h1 {
+    font-size: 1.75rem;
+  }
+  
+  .customer-support-page .lead {
+    font-size: 1rem;
+  }
+  
+  .support-card h4 {
+    font-size: 1.1rem;
+  }
+  
+  .policy-list span {
+    font-size: 0.85rem;
+  }
+  
+  .contact-support-section h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Animation Classes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.support-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.support-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.support-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.support-card:nth-child(3) {
+  animation-delay: 0.3s;
+}

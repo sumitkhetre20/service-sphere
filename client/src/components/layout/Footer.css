@@ -1,0 +1,239 @@
+/* Compact Footer Component Styles */
+.footer {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #ffffff;
+}
+
+/* Improved Text Visibility */
+.footer .text-white-50 {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-weight: 400;
+}
+
+.footer h5,
+.footer h6 {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Quick Links Hover Effects */
+.quick-link {
+  color: rgba(255, 255, 255, 0.7) !important;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+  padding-left: 0 !important;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.quick-link:hover {
+  color: #0d6efd !important;
+  transform: translateX(5px);
+}
+
+.quick-link::before {
+  content: '→';
+  position: absolute;
+  left: -15px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  color: #0d6efd;
+  font-size: 0.75rem;
+}
+
+.quick-link:hover::before {
+  opacity: 1;
+  left: -10px;
+}
+
+/* Compact Social Media Icons */
+.social-icon {
+  width: 30px !important;
+  height: 30px !important;
+  background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.social-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+  border-color: #0d6efd;
+}
+
+.social-icon.facebook:hover {
+  background: linear-gradient(135deg, #1877f2 0%, #0c5db8 100%);
+}
+
+.social-icon.instagram:hover {
+  background: linear-gradient(135deg, #e4405f 0%, #c13584 50%, #833ab4 100%);
+}
+
+.social-icon.twitter:hover {
+  background: linear-gradient(135deg, #1da1f2 0%, #0c85d0 100%);
+}
+
+.social-icon.linkedin:hover {
+  background: linear-gradient(135deg, #0077b5 0%, #005885 100%);
+}
+
+/* Compact Payment Methods */
+.payment-method {
+  background: rgba(108, 117, 125, 0.2);
+  border: 1px solid rgba(108, 117, 125, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.payment-method:hover {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+  border-color: #0d6efd;
+  box-shadow: 0 3px 10px rgba(13, 110, 253, 0.3);
+}
+
+/* Compact Contact Information */
+.contact-info div {
+  transition: all 0.3s ease;
+  padding: 4px 0;
+  border-left: 2px solid transparent;
+}
+
+.contact-info div:hover {
+  transform: translateX(5px);
+  border-left-color: #0d6efd;
+  background: rgba(13, 110, 253, 0.05);
+  padding-left: 10px;
+}
+
+.contact-info .text-primary {
+  font-size: 0.875rem;
+}
+
+/* Section Headers */
+.footer h5::after,
+.footer h6::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+  border-radius: 2px;
+}
+
+/* Copyright Section */
+.footer .bg-dark {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .quick-link:hover {
+    transform: translateX(3px);
+  }
+  
+  .social-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  
+  .social-icon:hover {
+    transform: translateY(-1px);
+  }
+  
+  .payment-method:hover {
+    transform: scale(1.05);
+  }
+  
+  .contact-info div:hover {
+    transform: translateX(3px);
+  }
+}
+
+@media (max-width: 576px) {
+  .footer h5 {
+    font-size: 1rem;
+  }
+  
+  .footer h6 {
+    font-size: 0.875rem;
+  }
+  
+  .payment-method {
+    width: 28px !important;
+    height: 18px !important;
+  }
+  
+  .payment-method:hover {
+    transform: scale(1.02);
+  }
+  
+  .quick-link {
+    font-size: 0.8rem;
+  }
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.scroll-to-top.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-to-top:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+}
+
+/* Animation Classes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.footer > div:first-child > .container > .row > .col {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.footer > div:first-child > .container > .row > .col:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.footer > div:first-child > .container > .row > .col:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.footer > div:first-child > .container > .row > .col:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.footer > div:first-child > .container > .row > .col:nth-child(4) {
+  animation-delay: 0.4s;
+}
