@@ -21,14 +21,7 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'development' ? 1000 : 100, // prevent local dev from being throttled too aggressively
-  standardHeaders: true,
-  legacyHeaders: false
-});
-app.use(limiter);
+
 
 // ========================================
 // CORS CONFIGURATION (FIRST)
