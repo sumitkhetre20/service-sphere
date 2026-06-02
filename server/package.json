@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "prod": "node production-server.js",
+    "prod": "node server.js",
     "test": "jest"
   },
   "keywords": [

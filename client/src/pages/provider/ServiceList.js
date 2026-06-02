@@ -66,7 +66,7 @@ const ServiceList = () => {
         s._id === serviceId ? { ...s, isActive: newStatus } : s
       ));
     } catch (err) {
-      setError('Failed to update service status. Please try again.');
+      setError(err.response?.data?.message || 'Failed to update service status. Please try again.');
       console.error('Error updating service status:', err);
     } finally {
       setActionLoading(null);
