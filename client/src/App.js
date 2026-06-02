@@ -46,10 +46,7 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <Router future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true
-        }}>
+        <Router>
           <div className="d-flex flex-column min-vh-100">
             <Navbar />
             <main className="flex-grow-1">
