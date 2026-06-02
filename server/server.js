@@ -30,30 +30,42 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration
-// CORS configuration
+// ========================================
+// CORS CONFIGURATION (FIRST)
+// ========================================
+
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://service-sphere-ochre.vercel.app', // Your Vercel frontend
+  'https://service-sphere-ochre.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (Postman, mobile apps, etc.)
-    if (!origin) return callback(null, true);
+
+    // Allow Postman and server-to-server requests
+    if (!origin) {
+      return callback(null, true);
+    }
 
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
-    console.log('Blocked by CORS:', origin);
+    console.log('❌ Blocked by CORS:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Origin',
+    'Accept'
+  ]
 }));
+
+app.options('*', cors());
 
 // Handle preflight requests
 app.options('*', cors());
@@ -140,15 +152,15 @@ console.log('✓ Provider services routes registered at /api/provider/services')
 
 console.log('=== ALL ROUTES REGISTERED ===');
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-  });
-});
+// ========================================
+// SECURITY MIDDLEWARE
+// ========================================
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false
+  })
+);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -157,6 +169,20 @@ app.use('*', (req, res) => {
     message: 'Route not found'
   });
 });
+
+// ========================================
+// RATE LIMITING
+// ========================================
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'development' ? 1000 : 100,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Apply limiter only to API routes
+app.use('/api', limiter);
 
 // Start server
 const PORT = process.env.PORT || 5000;
