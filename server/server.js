@@ -33,66 +33,47 @@ crossOriginResourcePolicy: false
 // CORS CONFIGURATION
 // ========================================
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+];
+
 app.use(cors({
-origin: function (origin, callback) {
+  origin: (origin, callback) => {
 
-```
-// Allow Postman, mobile apps, server-to-server requests
-if (!origin) {
-  return callback(null, true);
-}
+    // Allow Postman and server-to-server requests
+    if (!origin) {
+      return callback(null, true);
+    }
 
-// Allow localhost
-if (origin === 'http://localhost:3000') {
-  return callback(null, true);
-}
+    // Allow localhost
+    if (origin === 'http://localhost:3000') {
+      return callback(null, true);
+    }
 
-// Allow all Vercel deployments
-if (origin.includes('.vercel.app')) {
-  return callback(null, true);
-}
+    // Allow all Vercel deployments
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
 
-// Allow configured frontend URL
-if (origin === process.env.FRONTEND_URL) {
-  return callback(null, true);
-}
+    // Allow configured frontend URL
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-console.log('Blocked by CORS:', origin);
+    console.log('Blocked by CORS:', origin);
+    return callback(new Error('Not allowed by CORS'));
+  },
 
-// TEMPORARY: allow everything
-return callback(null, true);
-```
+  credentials: true,
 
-},
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
-credentials: true,
-
-methods: [
-'GET',
-'POST',
-'PUT',
-'PATCH',
-'DELETE',
-'OPTIONS'
-],
-
-allowedHeaders: [
-'Content-Type',
-'Authorization',
-'Origin',
-'Accept'
-]
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization'
+  ]
 }));
-
-app.options('*', cors());
-
-// ========================================
-// BODY PARSER
-// ========================================
-
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
-
 // ========================================
 // DATABASE CONNECTION
 // ========================================
