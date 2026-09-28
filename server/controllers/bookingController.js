@@ -24,7 +24,7 @@ const createBooking = async (req, res) => {
     console.log('Looking for service with ID:', serviceId);
     const service = await Service.findById(serviceId);
     console.log('Found service:', service ? service.name : 'NOT FOUND');
-    
+
     if (!service) {
       return res.status(404).json({
         success: false,
@@ -94,7 +94,7 @@ const createBooking = async (req, res) => {
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
     console.error('Full error:', error);
-    
+
     res.status(500).json({
       success: false,
       message: 'Server error while creating booking',
@@ -108,14 +108,14 @@ const getCustomerBookings = async (req, res) => {
     console.log('=== GETTING CUSTOMER BOOKINGS ===');
     console.log('User ID:', req.user._id);
     console.log('Query params:', req.query);
-    
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const status = req.query.status;
 
     const query = { customer: req.user._id };
     console.log('Booking query:', query);
-    
+
     if (status) {
       query.status = status;
     }
@@ -160,7 +160,7 @@ const getProviderBookings = async (req, res) => {
     const status = req.query.status;
 
     const query = { provider: req.user._id };
-    
+
     if (status) {
       query.status = status;
     }
@@ -199,11 +199,11 @@ const updateBookingStatus = async (req, res) => {
     console.log('Request body:', req.body);
     console.log('Request params:', req.params);
     console.log('User:', req.user);
-    
+
     const { status } = req.body;
     const { id } = req.params;
 
-    if (!['pending', 'confirmed', 'in-progress', 'completed', 'cancelled'].includes(status)) {
+    if (!['pending', 'confirmed', 'rejected', 'in-progress', 'completed', 'cancelled'].includes(status)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid status'
@@ -244,6 +244,13 @@ const updateBookingStatus = async (req, res) => {
         return res.status(400).json({
           success: false,
           message: 'Only pending bookings can be confirmed'
+        });
+      }
+
+      if (status === 'rejected' && booking.status !== 'pending') {
+        return res.status(400).json({
+          success: false,
+          message: 'Only pending bookings can be rejected'
         });
       }
 
@@ -306,9 +313,9 @@ const cancelBooking = async (req, res) => {
       });
     }
 
-    if (booking.customer.toString() !== req.user._id.toString() && 
-        booking.provider.toString() !== req.user._id.toString() &&
-        req.user.role !== 'admin') {
+    if (booking.customer.toString() !== req.user._id.toString() &&
+      booking.provider.toString() !== req.user._id.toString() &&
+      req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to cancel this booking'
@@ -361,9 +368,9 @@ const getBookingById = async (req, res) => {
       });
     }
 
-    if (booking.customer._id.toString() !== req.user._id.toString() && 
-        booking.provider._id.toString() !== req.user._id.toString() &&
-        req.user.role !== 'admin') {
+    if (booking.customer._id.toString() !== req.user._id.toString() &&
+      booking.provider._id.toString() !== req.user._id.toString() &&
+      req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to view this booking'

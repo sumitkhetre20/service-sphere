@@ -3,12 +3,24 @@ import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-b
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaCity,
+  FaCompass,
+  FaEye,
+  FaEyeSlash
+} from 'react-icons/fa';
 
 const CustomerRegister = () => {
   const { register, loading } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register: registerForm,
@@ -23,12 +35,12 @@ const CustomerRegister = () => {
     try {
       setIsSubmitting(true);
       setError('');
-      
+
       await register({
         name: data.name,
         email: data.email,
         password: data.password,
-        role: 'customer', // Fixed role for customer registration
+        role: 'customer',
         phone: data.phone,
         address: {
           street: data.street,
@@ -38,11 +50,10 @@ const CustomerRegister = () => {
         }
       });
 
-      // Redirect to login after successful registration
       navigate('/login');
-    } catch (error) {
-      console.error('Registration error:', error);
-      setError(error.message || 'Registration failed. Please try again.');
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err.response?.data?.message || err.message || 'Registration failed. Please check your details.');
     } finally {
       setIsSubmitting(false);
     }
@@ -50,240 +61,253 @@ const CustomerRegister = () => {
 
   if (loading) {
     return (
-      <Container className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+        <div className="text-center">
+          <div className="ss-spinner mx-auto mb-3"></div>
+          <p className="text-muted fw-semibold">Checking authentication...</p>
+        </div>
       </Container>
     );
   }
 
   return (
-    <Container className="py-5">
-      <Row className="justify-content-center">
-        <Col md={8} lg={6}>
-          <Card className="shadow">
-            <Card.Body className="p-4">
-              <div className="text-center mb-4">
-                <h2 className="fw-bold text-primary">Service Sphere</h2>
-                <p className="text-muted">Customer Registration</p>
+    <div className="py-5" style={{ minHeight: '85vh', background: 'linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%)' }}>
+      <Container>
+        <Row className="justify-content-center">
+          <Col lg={8} md={10}>
+            <Card className="border-0 shadow-lg rounded-4 overflow-hidden">
+              <div className="p-4 p-md-5 text-white" style={{ background: 'var(--ss-gradient-hero)' }}>
+                <div className="d-flex align-items-center gap-2 mb-3">
+                  <div
+                    className="rounded-3 d-flex align-items-center justify-content-center text-white"
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                    }}
+                  >
+                    <FaCompass size={18} />
+                  </div>
+                  <span className="fw-bolder fs-5">ServiceSphere</span>
+                </div>
+                <h2 className="fw-bold mb-1">Create Customer Account</h2>
+                <p className="text-white-50 mb-0">Join thousands of households booking top verified local services.</p>
               </div>
 
-              {error && (
-                <Alert variant="danger" className="mb-3">
-                  {error}
-                </Alert>
-              )}
+              <Card.Body className="p-4 p-md-5 bg-white">
+                {error && (
+                  <Alert variant="danger" className="mb-4 d-flex align-items-center gap-2">
+                    <span>{error}</span>
+                  </Alert>
+                )}
 
-              <Form onSubmit={handleSubmit(onSubmit)}>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Full Name</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter your full name"
-                        {...registerForm('name', {
-                          required: 'Name is required',
-                          minLength: {
-                            value: 2,
-                            message: 'Name must be at least 2 characters'
-                          }
-                        })}
-                        isInvalid={!!errors.name}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.name?.message}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Email Address</Form.Label>
-                      <Form.Control
-                        type="email"
-                        placeholder="Enter your email"
-                        {...registerForm('email', {
-                          required: 'Email is required',
-                          pattern: {
-                            value: /^\S+@\S+$/i,
-                            message: 'Invalid email address'
-                          }
-                        })}
-                        isInvalid={!!errors.email}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.email?.message}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Col>
-                </Row>
+                <Form onSubmit={handleSubmit(onSubmit)}>
+                  <h6 className="text-uppercase tracking-wider text-muted fw-bold small mb-3">
+                    1. Account Credentials
+                  </h6>
+                  <Row className="g-3 mb-4">
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="d-flex align-items-center gap-2 small fw-semibold">
+                          <FaUser className="text-muted" size={12} /> Full Name
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="e.g. John Doe"
+                          {...registerForm('name', {
+                            required: 'Name is required',
+                            minLength: { value: 2, message: 'Minimum 2 characters' }
+                          })}
+                          isInvalid={!!errors.name}
+                        />
+                        <Form.Control.Feedback type="invalid">{errors.name?.message}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
 
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Password</Form.Label>
-                      <Form.Control
-                        type="password"
-                        placeholder="Create a password"
-                        {...registerForm('password', {
-                          required: 'Password is required',
-                          minLength: {
-                            value: 6,
-                            message: 'Password must be at least 6 characters'
-                          }
-                        })}
-                        isInvalid={!!errors.password}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.password?.message}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Confirm Password</Form.Label>
-                      <Form.Control
-                        type="password"
-                        placeholder="Confirm your password"
-                        {...registerForm('confirmPassword', {
-                          required: 'Please confirm your password',
-                          validate: value => value === password || 'Passwords do not match'
-                        })}
-                        isInvalid={!!errors.confirmPassword}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.confirmPassword?.message}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Col>
-                </Row>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="d-flex align-items-center gap-2 small fw-semibold">
+                          <FaEnvelope className="text-muted" size={12} /> Email Address
+                        </Form.Label>
+                        <Form.Control
+                          type="email"
+                          placeholder="name@example.com"
+                          {...registerForm('email', {
+                            required: 'Email is required',
+                            pattern: { value: /^\S+@\S+$/i, message: 'Invalid email format' }
+                          })}
+                          isInvalid={!!errors.email}
+                        />
+                        <Form.Control.Feedback type="invalid">{errors.email?.message}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Phone Number</Form.Label>
-                  <Form.Control
-                    type="tel"
-                    placeholder="Enter your phone number"
-                    {...registerForm('phone', {
-                      required: 'Phone number is required',
-                      pattern: {
-                        value: /^\d{10}$/,
-                        message: 'Please enter a valid 10-digit phone number'
-                      }
-                    })}
-                    isInvalid={!!errors.phone}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.phone?.message}
-                  </Form.Control.Feedback>
-                </Form.Group>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="d-flex align-items-center gap-2 small fw-semibold">
+                          <FaLock className="text-muted" size={12} /> Password
+                        </Form.Label>
+                        <div className="position-relative">
+                          <Form.Control
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="At least 6 characters"
+                            {...registerForm('password', {
+                              required: 'Password is required',
+                              minLength: { value: 6, message: 'Minimum 6 characters' }
+                            })}
+                            isInvalid={!!errors.password}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3"
+                            onClick={() => setShowPassword(!showPassword)}
+                            tabIndex="-1"
+                          >
+                            {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                          </button>
+                        </div>
+                        <Form.Control.Feedback type="invalid" className="d-block">
+                          {errors.password?.message}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Street Address</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter your street address"
-                    {...registerForm('street', {
-                      required: 'Street address is required'
-                    })}
-                    isInvalid={!!errors.street}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.street?.message}
-                  </Form.Control.Feedback>
-                </Form.Group>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="d-flex align-items-center gap-2 small fw-semibold">
+                          <FaLock className="text-muted" size={12} /> Confirm Password
+                        </Form.Label>
+                        <Form.Control
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Repeat password"
+                          {...registerForm('confirmPassword', {
+                            required: 'Please confirm password',
+                            validate: val => val === password || 'Passwords do not match'
+                          })}
+                          isInvalid={!!errors.confirmPassword}
+                        />
+                        <Form.Control.Feedback type="invalid">{errors.confirmPassword?.message}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
 
-                <Row>
-                  <Col md={4}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>City</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="City"
-                        {...registerForm('city', {
-                          required: 'City is required'
-                        })}
-                        isInvalid={!!errors.city}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.city?.message}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Col>
-                  <Col md={4}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>State</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="State"
-                        {...registerForm('state', {
-                          required: 'State is required'
-                        })}
-                        isInvalid={!!errors.state}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.state?.message}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Col>
-                  <Col md={4}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Pincode</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Pincode"
-                        {...registerForm('pincode', {
-                          required: 'Pincode is required',
-                          pattern: {
-                            value: /^\d{6}$/,
-                            message: 'Please enter a valid 6-digit pincode'
-                          }
-                        })}
-                        isInvalid={!!errors.pincode}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.pincode?.message}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Col>
-                </Row>
+                  <h6 className="text-uppercase tracking-wider text-muted fw-bold small mb-3">
+                    2. Contact & Address Details
+                  </h6>
+                  <Row className="g-3 mb-4">
+                    <Col md={12}>
+                      <Form.Group>
+                        <Form.Label className="d-flex align-items-center gap-2 small fw-semibold">
+                          <FaPhone className="text-muted" size={12} /> Contact Number
+                        </Form.Label>
+                        <Form.Control
+                          type="tel"
+                          placeholder="10-digit mobile number"
+                          {...registerForm('phone', {
+                            required: 'Phone number is required',
+                            pattern: { value: /^\d{10}$/, message: 'Must be exact 10 digits' }
+                          })}
+                          isInvalid={!!errors.phone}
+                        />
+                        <Form.Control.Feedback type="invalid">{errors.phone?.message}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-100 mb-3"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Spinner as="span" animation="border" size="sm" className="me-2" />
-                      Creating Account...
-                    </>
-                  ) : (
-                    'Create Customer Account'
-                  )}
-                </Button>
+                    <Col md={12}>
+                      <Form.Group>
+                        <Form.Label className="d-flex align-items-center gap-2 small fw-semibold">
+                          <FaMapMarkerAlt className="text-muted" size={12} /> Street Address
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="House/Flat No., Building name, Street"
+                          {...registerForm('street', { required: 'Street address is required' })}
+                          isInvalid={!!errors.street}
+                        />
+                        <Form.Control.Feedback type="invalid">{errors.street?.message}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
 
-                <div className="text-center">
-                  <p className="mb-0">
-                    Already have an account?{' '}
-                    <Link to="/login" className="text-primary text-decoration-none">
-                      Login here
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="d-flex align-items-center gap-2 small fw-semibold">
+                          <FaCity className="text-muted" size={12} /> City
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="City"
+                          {...registerForm('city', { required: 'City is required' })}
+                          isInvalid={!!errors.city}
+                        />
+                        <Form.Control.Feedback type="invalid">{errors.city?.message}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold">State</Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="State"
+                          {...registerForm('state', { required: 'State is required' })}
+                          isInvalid={!!errors.state}
+                        />
+                        <Form.Control.Feedback type="invalid">{errors.state?.message}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="small fw-semibold">Pincode</Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="6-digit PIN"
+                          {...registerForm('pincode', {
+                            required: 'Pincode is required',
+                            pattern: { value: /^\d{6}$/, message: 'Must be 6 digits' }
+                          })}
+                          isInvalid={!!errors.pincode}
+                        />
+                        <Form.Control.Feedback type="invalid">{errors.pincode?.message}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    className="w-100 py-3 fw-bold shadow-sm mb-4"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Spinner as="span" animation="border" size="sm" className="me-2" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      'Complete Customer Registration'
+                    )}
+                  </Button>
+
+                  <div className="text-center border-top pt-4">
+                    <span className="text-muted small">Already have an account? </span>
+                    <Link to="/login" className="text-primary fw-semibold small text-decoration-none">
+                      Sign in here
                     </Link>
-                  </p>
-                  <p className="mb-0 mt-2">
-                    Are you a service provider?{' '}
-                    <Link to="/provider/register" className="text-primary text-decoration-none">
-                      Register as Provider
-                    </Link>
-                  </p>
-                </div>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+                    <div className="mt-2">
+                      <span className="text-muted small">Are you a service provider? </span>
+                      <Link to="/provider/register" className="text-primary fw-semibold small text-decoration-none">
+                        Register as Provider
+                      </Link>
+                    </div>
+                  </div>
+                </Form>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
 };
 

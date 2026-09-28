@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Container, Row, Col, Card, Button, Badge, Form, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Form, Alert } from 'react-bootstrap';
 import api from '../../utils/axiosInterceptor';
+import SkeletonCard from '../../components/ui/SkeletonCard';
+import StarRating from '../../components/ui/StarRating';
+import EmptyState from '../../components/ui/EmptyState';
+import PageHero from '../../components/ui/PageHero';
+import { FaSearch, FaFilter, FaTimes, FaMapMarkerAlt, FaRegClock } from 'react-icons/fa';
 
 const Services = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,7 +24,7 @@ const Services = () => {
   });
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 10,
+    limit: 9,
     total: 0,
     pages: 0
   });
@@ -28,8 +33,8 @@ const Services = () => {
     try {
       const response = await api.get('/services/categories');
       setCategories(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
       setCategories([]);
     }
   };
@@ -38,33 +43,31 @@ const Services = () => {
     try {
       setLoading(true);
       setError('');
-      
+
       const params = {
         page: pagination.page,
         limit: pagination.limit,
         ...filters
       };
 
-      // Remove empty filters
       Object.keys(params).forEach(key => {
         if (!params[key]) delete params[key];
       });
 
       const response = await api.get('/services', { params });
-      
-      // Validate response data structure
+
       if (!response?.data) {
         throw new Error('Invalid response structure');
       }
-      
+
       setServices(response.data.data || []);
       setPagination(prev => ({
         ...prev,
         ...response.data.pagination
       }));
-    } catch (error) {
-      console.error('Error fetching services:', error);
-      setError('Failed to fetch services. Please try again.');
+    } catch (err) {
+      console.error('Error fetching services:', err);
+      setError('Unable to load services at this time. Please try refreshing or adjust filters.');
       setServices([]);
     } finally {
       setLoading(false);
@@ -88,8 +91,7 @@ const Services = () => {
     const newFilters = { ...filters, [field]: value };
     setFilters(newFilters);
     setPagination(prev => ({ ...prev, page: 1 }));
-    
-    // Update URL
+
     const params = new URLSearchParams();
     Object.entries(newFilters).forEach(([key, val]) => {
       if (val) params.append(key, val);
@@ -108,226 +110,252 @@ const Services = () => {
     };
     setFilters(clearedFilters);
     setPagination(prev => ({ ...prev, page: 1 }));
-    
-    // Update URL
-    const params = new URLSearchParams();
-    Object.entries(clearedFilters).forEach(([key, val]) => {
-      if (val) params.append(key, val);
-    });
-    setSearchParams(params);
+    setSearchParams(new URLSearchParams());
   };
 
-  const renderStars = (rating) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<span key={i} className="rating-stars">★</span>);
-    }
-    if (hasHalfStar) {
-      stars.push(<span key="half" className="rating-stars">☆</span>);
-    }
-    for (let i = stars.length; i < 5; i++) {
-      stars.push(<span key={i} className="text-muted">☆</span>);
-    }
-
-    return stars;
-  };
+  const hasActiveFilters = Boolean(
+    filters.category || filters.search || filters.minPrice || filters.maxPrice
+  );
 
   return (
-    <Container className="py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Services</h1>
-        <Button variant="outline-primary" onClick={clearFilters}>
-          Clear Filters
-        </Button>
-      </div>
+    <>
+      <PageHero
+        badge="Marketplace"
+        title="Find & Book Trusted Local Services"
+        subtitle="Explore verified experts across cleaning, repairs, electrical, beauty, and maintenance."
+      />
 
-      {/* Filters Section */}
-      <Card className="mb-4">
-        <Card.Body>
+      <Container className="py-5">
+        {/* Search & Filter Toolbar */}
+        <Card className="border-0 shadow-sm rounded-4 mb-4 p-3 bg-white">
           <Form onSubmit={handleSearch}>
-            <Row>
-              <Col md={3}>
-                <Form.Group>
-                  <Form.Label>Category</Form.Label>
-                  <Form.Select
-                    value={filters.category}
-                    onChange={(e) => handleFilterChange('category', e.target.value)}
-                  >
-                    <option value="">All Categories</option>
-                    {categories.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-
-              <Col md={3}>
-                <Form.Group>
-                  <Form.Label>Search</Form.Label>
+            <Row className="g-3 align-items-center">
+              {/* Keyword Search */}
+              <Col lg={4} md={6}>
+                <div className="position-relative">
+                  <FaSearch className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" size={14} />
                   <Form.Control
                     type="text"
-                    placeholder="Search services..."
+                    placeholder="Search by service name or keywords..."
                     value={filters.search}
                     onChange={(e) => handleFilterChange('search', e.target.value)}
+                    style={{ paddingLeft: '38px' }}
                   />
-                </Form.Group>
+                </div>
               </Col>
 
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label>Min Price</Form.Label>
-                  <Form.Control
-                    type="number"
-                    placeholder="Min"
-                    value={filters.minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                  />
-                </Form.Group>
+              {/* Category Dropdown */}
+              <Col lg={3} md={6}>
+                <Form.Select
+                  value={filters.category}
+                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                >
+                  <option value="">All Service Categories</option>
+                  {categories.map((cat) => (
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </Form.Select>
               </Col>
 
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label>Max Price</Form.Label>
-                  <Form.Control
-                    type="number"
-                    placeholder="Max"
-                    value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                  />
-                </Form.Group>
+              {/* Price Range */}
+              <Col lg={2} sm={6}>
+                <Form.Control
+                  type="number"
+                  placeholder="Min Price (₹)"
+                  value={filters.minPrice}
+                  onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                />
+              </Col>
+              <Col lg={2} sm={6}>
+                <Form.Control
+                  type="number"
+                  placeholder="Max Price (₹)"
+                  value={filters.maxPrice}
+                  onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                />
               </Col>
 
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label>Sort By</Form.Label>
-                  <Form.Select
-                    value={`${filters.sortBy}-${filters.sortOrder}`}
-                    onChange={(e) => {
-                      const [sortBy, sortOrder] = e.target.value.split('-');
-                      handleFilterChange('sortBy', sortBy);
-                      handleFilterChange('sortOrder', sortOrder);
-                    }}
+              {/* Clear / Filter Actions */}
+              <Col lg={1} md={12} className="text-end">
+                {hasActiveFilters && (
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="w-100 d-flex align-items-center justify-content-center gap-1 py-2"
+                    title="Clear all filters"
                   >
-                    <option value="createdAt-desc">Newest First</option>
-                    <option value="createdAt-asc">Oldest First</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                    <option value="rating-desc">Highest Rated</option>
-                  </Form.Select>
-                </Form.Group>
+                    <FaTimes size={12} /> Clear
+                  </Button>
+                )}
               </Col>
             </Row>
-          </Form>
-        </Card.Body>
-      </Card>
 
-      {/* Error Message */}
-      {error && (
-        <Alert variant="danger" className="mb-4">
-          {error}
-        </Alert>
-      )}
+            {/* Sort Sub-row */}
+            <div className="d-flex justify-content-between align-items-center pt-3 mt-3 border-top flex-wrap gap-2">
+              <div className="text-muted small">
+                Showing <strong className="text-dark">{services.length}</strong> services
+                {pagination.total > 0 && ` of ${pagination.total}`}
+              </div>
 
-      {/* Loading State */}
-      {loading ? (
-        <div className="loading-spinner">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </div>
-      ) : (
-        <>
-          {/* Services Grid */}
-          {console.log('=== RENDER DEBUG ===', { loading, servicesLength: services.length, services })}
-          {services.length === 0 ? (
-            <div className="text-center py-5">
-              <h3>No services found</h3>
-              <p className="text-muted">Try adjusting your filters or search criteria</p>
-            </div>
-          ) : (
-            <Row>
-              {services.map((service) => (
-                <Col md={6} lg={4} className="mb-4" key={service._id}>
-                  <Card className="h-100 service-card">
-                    {service.images?.length > 0 && (
-                      <Card.Img 
-                        variant="top" 
-                        src={service.images[0]} 
-                        style={{ height: '200px', objectFit: 'cover' }}
-                      />
-                    )}
-                    <Card.Body>
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <Card.Title className="mb-0">{service.name}</Card.Title>
-                        <Badge bg="primary">₹{service.price.basePrice}</Badge>
-                      </div>
-                      
-                      <Card.Text className="text-muted mb-2">
-                        {service.description.substring(0, 100)}...
-                      </Card.Text>
-                      
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                          {renderStars(service.rating)}
-                          <small className="text-muted ms-1">
-                            ({service.totalReviews || 0})
-                          </small>
-                        </div>
-                        <Badge bg="secondary">{service.category}</Badge>
-                      </div>
-                      
-                      <div className="d-flex justify-content-between align-items-center">
-                        <small className="text-muted">
-                          by {service.provider?.name}
-                        </small>
-                        <Button 
-                          as={Link} 
-                          to={`/services/${service._id}`}
-                          variant="outline-primary"
-                          size="sm"
-                        >
-                          View Details
-                        </Button>
-                      </div>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          )}
-
-          {/* Pagination */}
-          {pagination.pages > 1 && (
-            <div className="d-flex justify-content-center mt-4">
-              <div className="btn-group">
-                <Button
-                  variant="outline-primary"
-                  disabled={pagination.page === 1}
-                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+              <div className="d-flex align-items-center gap-2">
+                <span className="text-muted small fw-semibold">Sort By:</span>
+                <Form.Select
+                  size="sm"
+                  style={{ width: 'auto' }}
+                  value={`${filters.sortBy}-${filters.sortOrder}`}
+                  onChange={(e) => {
+                    const [sortBy, sortOrder] = e.target.value.split('-');
+                    handleFilterChange('sortBy', sortBy);
+                    handleFilterChange('sortOrder', sortOrder);
+                  }}
                 >
-                  Previous
-                </Button>
-                <span className="btn btn-outline-primary" disabled>
-                  Page {pagination.page} of {pagination.pages}
-                </span>
-                <Button
-                  variant="outline-primary"
-                  disabled={pagination.page === pagination.pages}
-                  onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                >
-                  Next
-                </Button>
+                  <option value="createdAt-desc">Newest First</option>
+                  <option value="createdAt-asc">Oldest First</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="rating-desc">Highest Rated</option>
+                </Form.Select>
               </div>
             </div>
+          </Form>
+        </Card>
+
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="danger" className="mb-4 d-flex align-items-center justify-content-between">
+            <span>{error}</span>
+            <Button variant="outline-danger" size="sm" onClick={fetchServices}>
+              Retry
+            </Button>
+          </Alert>
+        )}
+
+        {/* Services List / Skeletons */}
+        <Row className="g-4">
+          {loading ? (
+            <SkeletonCard count={6} />
+          ) : services.length === 0 ? (
+            <Col xs={12}>
+              <EmptyState
+                icon="🔍"
+                title="No Services Found"
+                description="We couldn't find any services matching your criteria. Try adjusting the category, search term, or price range."
+                actionText="Reset All Filters"
+                onAction={clearFilters}
+              />
+            </Col>
+          ) : (
+            services.map((service) => (
+              <Col md={6} lg={4} key={service._id}>
+                <Card className="service-card h-100 border-0 shadow-sm overflow-hidden d-flex flex-column">
+                  <div className="position-relative">
+                    <Card.Img
+                      variant="top"
+                      src={
+                        service.images?.[0] ||
+                        'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=500&q=80'
+                      }
+                      style={{ height: '210px', objectFit: 'cover' }}
+                      alt={service.name}
+                    />
+                    <Badge
+                      bg="dark"
+                      className="position-absolute top-0 end-0 m-3 px-2 py-1 shadow-sm text-capitalize"
+                    >
+                      {service.category?.replace('-', ' ')}
+                    </Badge>
+                  </div>
+
+                  <Card.Body className="d-flex flex-column p-4 flex-grow-1">
+                    <div className="d-flex justify-content-between align-items-start mb-2">
+                      <Card.Title className="fw-bold fs-5 mb-0 text-dark">
+                        <Link to={`/services/${service._id}`} className="text-dark text-decoration-none">
+                          {service.name}
+                        </Link>
+                      </Card.Title>
+                    </div>
+
+                    <p className="text-muted small mb-3 flex-grow-1" style={{ lineHeight: '1.6' }}>
+                      {service.description?.length > 110
+                        ? `${service.description.substring(0, 110)}...`
+                        : service.description}
+                    </p>
+
+                    <div className="d-flex align-items-center justify-content-between mb-3 pt-2">
+                      <StarRating
+                        rating={service.rating || 0}
+                        totalReviews={service.totalReviews || 0}
+                        size={14}
+                      />
+                      {service.duration && (
+                        <span className="text-muted small d-flex align-items-center gap-1">
+                          <FaRegClock size={12} /> {service.duration} {service.price?.unit || 'hr'}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                      <div>
+                        <span className="text-muted small d-block">Starting from</span>
+                        <div className="d-flex align-items-baseline gap-1">
+                          <span className="fw-bold fs-4 text-primary">₹{service.price?.basePrice}</span>
+                          <span className="text-muted small">/{service.price?.unit || 'job'}</span>
+                        </div>
+                      </div>
+
+                      <Button
+                        as={Link}
+                        to={`/services/${service._id}`}
+                        variant="primary"
+                        className="px-3 fw-semibold"
+                      >
+                        Book Now
+                      </Button>
+                    </div>
+
+                    {service.provider?.name && (
+                      <div className="mt-2 pt-2 border-top text-muted" style={{ fontSize: '0.78rem' }}>
+                        Offered by <strong className="text-dark">{service.provider.name}</strong>
+                      </div>
+                    )}
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))
           )}
-        </>
-      )}
-    </Container>
+        </Row>
+
+        {/* Pagination Controls */}
+        {pagination.pages > 1 && (
+          <div className="d-flex justify-content-center mt-5">
+            <div className="btn-group shadow-sm">
+              <Button
+                variant="outline-primary"
+                disabled={pagination.page === 1}
+                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                className="px-3"
+              >
+                Previous
+              </Button>
+              <span className="btn btn-outline-primary active disabled px-4 fw-bold">
+                Page {pagination.page} of {pagination.pages}
+              </span>
+              <Button
+                variant="outline-primary"
+                disabled={pagination.page === pagination.pages}
+                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                className="px-3"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+      </Container>
+    </>
   );
 };
 

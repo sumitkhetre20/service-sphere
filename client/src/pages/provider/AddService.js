@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Container, Card, Form, Button, Alert, Spinner, Row, Col } from 'react-bootstrap';
-import api from '../../utils/axiosInterceptor'; // Fixed: Using api instead of axios
+import { toast } from 'react-toastify';
+import api from '../../utils/axiosInterceptor';
 import { useAuth } from '../../context/AuthContext';
+import { FaArrowLeft } from 'react-icons/fa';
 
 const AddService = () => {
   const [service, setService] = useState({
@@ -13,6 +15,7 @@ const AddService = () => {
       basePrice: '',
       unit: 'hour'
     },
+    duration: 1,
     availability: {
       monday: { available: true, startTime: '09:00', endTime: '18:00' },
       tuesday: { available: true, startTime: '09:00', endTime: '18:00' },
@@ -23,6 +26,7 @@ const AddService = () => {
       sunday: { available: false, startTime: '09:00', endTime: '18:00' }
     }
   });
+
   const [loading, setLoading] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [error, setError] = useState('');
@@ -35,18 +39,14 @@ const AddService = () => {
       setAuthLoading(false);
       return;
     }
-    
     setAuthLoading(false);
-    
     if (user.role && user.role !== 'provider') {
       navigate('/');
-      return;
     }
   }, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setService(prev => ({
@@ -84,108 +84,92 @@ const AddService = () => {
     setSuccess('');
 
     try {
-      console.log('=== FRONTEND SUBMISSION START ===');
-      console.log('Service data to submit:', service);
-      console.log('Service data JSON:', JSON.stringify(service, null, 2));
-      
-      const response = await api.post('/provider/services', service);
-      console.log('=== API RESPONSE ===');
-      console.log('Response status:', response.status);
-      console.log('Response data:', response.data);
-      
+      const payload = {
+        ...service,
+        duration: Number(service.duration) || 1,
+        price: {
+          ...service.price,
+          basePrice: Number(service.price.basePrice)
+        }
+      };
+
+      const response = await api.post('/provider/services', payload);
       if (response.data.success) {
-        setSuccess('Service added successfully!');
-        // Reset form
-        setService({
-          name: '',
-          description: '',
-          category: '',
-          price: {
-            basePrice: '',
-            unit: 'hour'
-          },
-          availability: {
-            monday: { available: true, startTime: '09:00', endTime: '18:00' },
-            tuesday: { available: true, startTime: '09:00', endTime: '18:00' },
-            wednesday: { available: true, startTime: '09:00', endTime: '18:00' },
-            thursday: { available: true, startTime: '09:00', endTime: '18:00' },
-            friday: { available: true, startTime: '09:00', endTime: '18:00' },
-            saturday: { available: false, startTime: '09:00', endTime: '18:00' },
-            sunday: { available: false, startTime: '09:00', endTime: '18:00' }
-          }
-        });
-        
-        // Redirect to services list after a delay
+        setSuccess('Service added successfully to your catalog!');
+        toast.success('Service published successfully!');
         setTimeout(() => {
           navigate('/provider/services');
-        }, 2000);
+        }, 1200);
       } else {
         setError(response.data.message || 'Failed to add service');
       }
     } catch (err) {
-      console.log('=== FRONTEND ERROR ===');
-      console.log('Error object:', err);
-      console.log('Error response:', err.response);
-      console.log('Error message:', err.message);
-      
-      setError(err.response?.data?.message || 'Failed to add service. Please try again.');
+      console.error('Error adding service:', err);
+      const msg = err.response?.data?.message || 'Failed to create service listing.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const categories = [
-    'Home Cleaning',
-    'Plumbing',
-    'Electrical',
-    'Carpentry',
-    'Painting',
-    'Beauty & Wellness',
-    'Fitness',
-    'Tutoring',
-    'Photography',
-    'Event Planning',
-    'Other'
+    { label: 'Home Cleaning', value: 'home-cleaning' },
+    { label: 'Plumbing', value: 'plumbing' },
+    { label: 'Electrical', value: 'electrical' },
+    { label: 'Carpentry', value: 'carpentry' },
+    { label: 'Painting', value: 'painting' },
+    { label: 'Beauty & Wellness', value: 'beauty' },
+    { label: 'Fitness & Yoga', value: 'fitness' },
+    { label: 'Tutoring', value: 'tutoring' },
+    { label: 'Photography', value: 'photography' },
+    { label: 'Event Planning', value: 'event-planning' },
+    { label: 'Other Services', value: 'other' }
   ];
 
   if (authLoading) {
     return (
-      <Container className="py-4 text-center">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+        <div className="ss-spinner"></div>
       </Container>
     );
   }
 
   return (
-    <Container className="py-4">
-      <h1 className="mb-4">Add New Service</h1>
-      
-      {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
-      {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
-      
-      <Card className="shadow-sm">
-        <Card.Body>
+    <div className="py-4 bg-light" style={{ minHeight: '85vh' }}>
+      <Container>
+        <div className="mb-4">
+          <Link to="/provider/services" className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 mb-2">
+            <FaArrowLeft size={12} /> Back to Catalog
+          </Link>
+          <h2 className="fw-bold text-dark mb-1">Create New Service Offering</h2>
+          <p className="text-muted small mb-0">Publish a new service to attract bookings from homeowners.</p>
+        </div>
+
+        {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
+        {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
+
+        <Card className="border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
           <Form onSubmit={handleSubmit}>
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Service Name *</Form.Label>
+            <h5 className="fw-bold text-dark mb-3">1. Service Particulars</h5>
+            <Row className="g-3 mb-4">
+              <Col md={8}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Service Title *</Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
                     value={service.name}
                     onChange={handleChange}
-                    placeholder="e.g., Home Cleaning Service"
+                    placeholder="e.g. Master Bathroom Sanitization & Deep Clean"
                     required
                   />
                 </Form.Group>
               </Col>
-              
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Category *</Form.Label>
+
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Category *</Form.Label>
                   <Form.Select
                     name="category"
                     value={service.category}
@@ -194,46 +178,48 @@ const AddService = () => {
                   >
                     <option value="">Select Category</option>
                     {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat.value} value={cat.value}>{cat.label}</option>
                     ))}
                   </Form.Select>
                 </Form.Group>
               </Col>
+
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Detailed Description *</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={4}
+                    name="description"
+                    value={service.description}
+                    onChange={handleChange}
+                    placeholder="Describe what's included in this service, equipment used, and duration requirements..."
+                    required
+                  />
+                </Form.Group>
+              </Col>
             </Row>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Description *</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={4}
-                name="description"
-                value={service.description}
-                onChange={handleChange}
-                placeholder="Describe your service in detail..."
-                required
-              />
-            </Form.Group>
-
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Base Price (₹) *</Form.Label>
+            <h5 className="fw-bold text-dark mb-3">2. Pricing & Duration</h5>
+            <Row className="g-3 mb-4">
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Base Price (₹) *</Form.Label>
                   <Form.Control
                     type="number"
                     name="price.basePrice"
                     value={service.price.basePrice}
                     onChange={handleChange}
-                    placeholder="500"
+                    placeholder="499"
                     min="0"
-                    step="0.01"
                     required
                   />
                 </Form.Group>
               </Col>
-              
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Price Unit *</Form.Label>
+
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Pricing Unit *</Form.Label>
                   <Form.Select
                     name="price.unit"
                     value={service.price.unit}
@@ -248,66 +234,89 @@ const AddService = () => {
                   </Form.Select>
                 </Form.Group>
               </Col>
+
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label className="small fw-semibold">Typical Duration (Hours)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="duration"
+                    value={service.duration}
+                    onChange={handleChange}
+                    min="1"
+                    placeholder="1"
+                  />
+                </Form.Group>
+              </Col>
             </Row>
 
-            {Object.entries(service.availability).map(([day, availability]) => (
-              <Row key={day} className="mb-3">
-                <Col md={3}>
-                  <Form.Group>
-                    <Form.Label className="text-capitalize">{day}</Form.Label>
+            <h5 className="fw-bold text-dark mb-3">3. Weekly Availability Schedule</h5>
+            <div className="bg-light p-3 rounded-4 mb-4">
+              {Object.entries(service.availability).map(([day, availability]) => (
+                <Row key={day} className="align-items-center g-2 py-2 border-bottom">
+                  <Col md={3}>
                     <Form.Check
                       type="checkbox"
-                      label="Available"
+                      id={`avail-${day}`}
+                      label={<span className="fw-bold text-capitalize text-dark">{day}</span>}
                       checked={availability.available}
                       onChange={(e) => handleAvailabilityChange(day, 'available', e.target.checked)}
                     />
-                  </Form.Group>
-                </Col>
-                
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label>Start Time</Form.Label>
-                    <Form.Control
-                      type="time"
-                      value={availability.startTime}
-                      onChange={(e) => handleAvailabilityChange(day, 'startTime', e.target.value)}
-                      disabled={!availability.available}
-                    />
-                  </Form.Group>
-                </Col>
-                
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label>End Time</Form.Label>
-                    <Form.Control
-                      type="time"
-                      value={availability.endTime}
-                      onChange={(e) => handleAvailabilityChange(day, 'endTime', e.target.value)}
-                      disabled={!availability.available}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-            ))}
+                  </Col>
 
-            <Button 
-              type="submit" 
-              variant="primary" 
-              disabled={loading}
-              className="w-100 mt-4"
-            >
-              {loading ? (
-                <>
-                  <Spinner as="span" animation="border" size="sm" /> Adding Service...
-                </>
-              ) : (
-                'Add Service'
-              )}
-            </Button>
+                  <Col md={4}>
+                    <div className="d-flex align-items-center gap-2">
+                      <span className="small text-muted">From:</span>
+                      <Form.Control
+                        type="time"
+                        size="sm"
+                        value={availability.startTime}
+                        onChange={(e) => handleAvailabilityChange(day, 'startTime', e.target.value)}
+                        disabled={!availability.available}
+                      />
+                    </div>
+                  </Col>
+
+                  <Col md={4}>
+                    <div className="d-flex align-items-center gap-2">
+                      <span className="small text-muted">To:</span>
+                      <Form.Control
+                        type="time"
+                        size="sm"
+                        value={availability.endTime}
+                        onChange={(e) => handleAvailabilityChange(day, 'endTime', e.target.value)}
+                        disabled={!availability.available}
+                      />
+                    </div>
+                  </Col>
+                </Row>
+              ))}
+            </div>
+
+            <div className="d-flex justify-content-end gap-2 pt-3 border-top">
+              <Button as={Link} to="/provider/services" variant="secondary" className="px-4">
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={loading}
+                className="px-4 fw-bold shadow-sm"
+              >
+                {loading ? (
+                  <>
+                    <Spinner as="span" animation="border" size="sm" className="me-2" />
+                    Publishing Service...
+                  </>
+                ) : (
+                  'Publish Service'
+                )}
+              </Button>
+            </div>
           </Form>
-        </Card.Body>
-      </Card>
-    </Container>
+        </Card>
+      </Container>
+    </div>
   );
 };
 

@@ -1,14 +1,12 @@
 import React from 'react';
-import { Spinner, Container } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 
-const LoadingSpinner = ({ message = 'Loading...' }) => {
+const LoadingSpinner = ({ message = 'Loading details...' }) => {
   return (
-    <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-      <div className="text-center">
-        <Spinner animation="border" role="status" className="mb-3">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-        <p className="text-muted">{message}</p>
+    <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+      <div className="text-center p-4">
+        <div className="ss-spinner mx-auto mb-3"></div>
+        <p className="text-muted fw-medium mb-0">{message}</p>
       </div>
     </Container>
   );

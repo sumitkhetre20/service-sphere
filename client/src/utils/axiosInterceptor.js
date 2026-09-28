@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: 'https://service-sphere-6cow.onrender.com/api',
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'https://service-sphere-6cow.onrender.com/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -18,12 +18,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // Log request in development
     if (process.env.NODE_ENV === 'development') {
       console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`, config.data || config.params);
     }
-    
+
     return config;
   },
   (error) => {
@@ -39,7 +39,7 @@ api.interceptors.response.use(
     if (process.env.NODE_ENV === 'development') {
       console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
     }
-    
+
     return response;
   },
   (error) => {
@@ -47,7 +47,7 @@ api.interceptors.response.use(
     if (error.response) {
       // Server responded with error status
       const { status, data } = error.response;
-      
+
       switch (status) {
         case 401:
           // Unauthorized - clear token and redirect to login
@@ -56,33 +56,33 @@ api.interceptors.response.use(
           toast.error('Session expired. Please login again.');
           window.location.href = '/login';
           break;
-          
+
         case 403:
           // Forbidden
           toast.error('Access denied. You don\'t have permission to perform this action.');
           break;
-          
+
         case 404:
           // Not found
           toast.error('Resource not found.');
           break;
-          
+
         case 422:
           // Validation error
           const validationErrors = data.errors || [data.message];
           validationErrors.forEach(err => toast.error(err));
           break;
-          
+
         case 429:
           // Too many requests
           toast.error('Too many requests. Please try again later.');
           break;
-          
+
         case 500:
           // Server error
           toast.error('Server error. Please try again later.');
           break;
-          
+
         default:
           // Other errors
           toast.error(data.message || 'An error occurred. Please try again.');
@@ -95,7 +95,7 @@ api.interceptors.response.use(
         config: error.config,
         request: error.request
       });
-      
+
       if (error.code === 'ECONNREFUSED') {
         toast.error('Cannot connect to server. Please ensure the backend is running on port 5000.');
       } else if (error.code === 'ERR_NETWORK') {
@@ -109,12 +109,12 @@ api.interceptors.response.use(
       // Other errors
       toast.error('An unexpected error occurred.');
     }
-    
+
     // Log error in development
     if (process.env.NODE_ENV === 'development') {
       console.error('❌ API Error:', error.response?.data || error.message);
     }
-    
+
     return Promise.reject(error);
   }
 );

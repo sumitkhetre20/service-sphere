@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Card, Form, Button, Alert, Spinner, Row, Col } from 'react-bootstrap';
+import { Container, Card, Form, Button, Alert, Spinner, Row, Col, Badge } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
+import { FaBriefcase, FaEnvelope, FaPhone, FaMapMarkerAlt, FaCity, FaSave, FaStar } from 'react-icons/fa';
 
 const ProviderProfile = () => {
   const navigate = useNavigate();
@@ -51,7 +53,6 @@ const ProviderProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setProfile(prev => ({
@@ -76,7 +77,6 @@ const ProviderProfile = () => {
     setSuccess('');
 
     try {
-      // Validate required fields
       if (!profile.name || !profile.phone) {
         setError('Name and phone are required');
         return;
@@ -93,131 +93,236 @@ const ProviderProfile = () => {
       };
 
       const response = await updateProfile(profileData);
-      
-      // Handle successful response
-      if (response?.data?.success) {
-        setSuccess(response.data.message || 'Profile updated successfully!');
-        
-        // Update local state with returned user data if available
-        if (response.data.user) {
-          // Update auth context if needed
-          // This depends on your AuthContext implementation
-        }
+      if (response?.data?.success || response?.user) {
+        setSuccess('Provider profile updated successfully!');
+        toast.success('Profile updated successfully!');
       } else {
-        setError(response?.data?.message || 'Profile update failed');
+        setError(response?.data?.message || 'Profile update completed');
       }
     } catch (err) {
-      console.error("UPDATE ERROR:", err);
-      
-      // Handle different error types
-      const errorMessage = err.response?.data?.message || 
-                          err.response?.data?.errors?.[0] || 
-                          err.message || 
-                          'Profile update failed';
-      
-      setError(errorMessage);
+      console.error('UPDATE ERROR:', err);
+      const msg = err.response?.data?.message || err.message || 'Profile update failed';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setUpdating(false);
     }
   };
 
+  const getInitials = (name) => {
+    if (!name) return 'P';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   if (loading) {
     return (
-      <Container className="py-4 text-center">
-        <Spinner animation="border" />
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+        <div className="ss-spinner"></div>
       </Container>
     );
   }
 
   return (
-    <Container className="py-4">
-      <h1 className="mb-4">Provider Profile</h1>
+    <div className="py-5 bg-light" style={{ minHeight: '85vh' }}>
+      <Container>
+        <Row className="justify-content-center">
+          <Col lg={8} md={10}>
+            {/* Header Badge Card */}
+            <Card className="border-0 shadow-sm rounded-4 overflow-hidden mb-4 text-center p-4 bg-white">
+              <div className="profile-avatar mx-auto mb-3 shadow">
+                {getInitials(profile.name)}
+              </div>
+              <h3 className="fw-bold text-dark mb-1">{profile.name}</h3>
+              <p className="text-muted small mb-2">{profile.email}</p>
+              <div className="d-flex justify-content-center gap-2">
+                <Badge bg="success" className="px-3 py-1 text-uppercase">
+                  Verified Provider
+                </Badge>
+                {user?.profile?.rating ? (
+                  <Badge bg="warning" className="text-dark px-3 py-1 d-flex align-items-center gap-1">
+                    <FaStar size={11} /> {user.profile.rating} / 5
+                  </Badge>
+                ) : null}
+              </div>
+            </Card>
 
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
+            {/* Profile Form Card */}
+            <Card className="border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+              <h4 className="fw-bold text-dark mb-4 pb-2 border-bottom">Business & Professional Profile</h4>
 
-      <Card>
-        <Card.Body>
-          <Form onSubmit={handleSubmit}>
+              {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
+              {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
 
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={profile.name}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
+              <Form onSubmit={handleSubmit}>
+                <h6 className="text-uppercase tracking-wider text-muted fw-bold small mb-3">
+                  Basic Business Info
+                </h6>
+                <Row className="g-3 mb-4">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="small fw-semibold d-flex align-items-center gap-2">
+                        <FaBriefcase className="text-muted" size={12} /> Provider / Business Name
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="name"
+                        value={profile.name}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
 
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    value={profile.email}
-                    disabled
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="small fw-semibold d-flex align-items-center gap-2">
+                        <FaEnvelope className="text-muted" size={12} /> Email (Login ID)
+                      </Form.Label>
+                      <Form.Control
+                        type="email"
+                        value={profile.email}
+                        disabled
+                        className="bg-light"
+                      />
+                    </Form.Group>
+                  </Col>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Phone</Form.Label>
-              <Form.Control
-                type="tel"
-                name="phone"
-                value={profile.phone}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+                  <Col md={12}>
+                    <Form.Group>
+                      <Form.Label className="small fw-semibold d-flex align-items-center gap-2">
+                        <FaPhone className="text-muted" size={12} /> Contact Phone Number
+                      </Form.Label>
+                      <Form.Control
+                        type="tel"
+                        name="phone"
+                        value={profile.phone}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Bio</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="bio"
-                value={profile.bio}
-                onChange={handleChange}
-              />
-            </Form.Group>
+                <h6 className="text-uppercase tracking-wider text-muted fw-bold small mb-3">
+                  Qualifications & Bio
+                </h6>
+                <Row className="g-3 mb-4">
+                  <Col md={12}>
+                    <Form.Group>
+                      <Form.Label className="small fw-semibold">Public Bio / Introduction</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        name="bio"
+                        value={profile.bio}
+                        onChange={handleChange}
+                        placeholder="Introduce your team, specialty, and track record to clients..."
+                      />
+                    </Form.Group>
+                  </Col>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Experience</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={2}
-                name="experience"
-                value={profile.experience}
-                onChange={handleChange}
-              />
-            </Form.Group>
+                  <Col md={12}>
+                    <Form.Group>
+                      <Form.Label className="small fw-semibold">Years of Experience & Certifications</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={2}
+                        name="experience"
+                        value={profile.experience}
+                        onChange={handleChange}
+                        placeholder="e.g. 8+ years licensed plumbing experience, ISO certified equipment..."
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
 
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={updating}
-              className="w-100 mt-4"
-            >
-              {updating ? (
-                <>
-                  <Spinner as="span" animation="border" size="sm" /> Updating...
-                </>
-              ) : (
-                'Update Profile'
-              )}
-            </Button>
+                <h6 className="text-uppercase tracking-wider text-muted fw-bold small mb-3">
+                  Operating Address
+                </h6>
+                <Row className="g-3 mb-4">
+                  <Col md={12}>
+                    <Form.Group>
+                      <Form.Label className="small fw-semibold d-flex align-items-center gap-2">
+                        <FaMapMarkerAlt className="text-muted" size={12} /> Street Address
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="address.street"
+                        value={profile.address?.street || ''}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
 
-          </Form>
-        </Card.Body>
-      </Card>
-    </Container>
+                  <Col md={4}>
+                    <Form.Group>
+                      <Form.Label className="small fw-semibold d-flex align-items-center gap-2">
+                        <FaCity className="text-muted" size={12} /> City
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="address.city"
+                        value={profile.address?.city || ''}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={4}>
+                    <Form.Group>
+                      <Form.Label className="small fw-semibold">State</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="address.state"
+                        value={profile.address?.state || ''}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={4}>
+                    <Form.Group>
+                      <Form.Label className="small fw-semibold">Pincode</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="address.pincode"
+                        value={profile.address?.pincode || ''}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <div className="d-flex justify-content-end pt-3 border-top">
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={updating}
+                    className="px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2 shadow-sm"
+                  >
+                    {updating ? (
+                      <>
+                        <Spinner as="span" animation="border" size="sm" className="me-2" />
+                        Saving Profile...
+                      </>
+                    ) : (
+                      <>
+                        <FaSave size={14} /> Save Profile Changes
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </Form>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
 };
 

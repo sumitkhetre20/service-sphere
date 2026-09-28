@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { 
-  FaFacebookF, 
-  FaInstagram, 
-  FaTwitter, 
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaTwitter,
   FaLinkedinIn,
-  FaPhone,
+  FaPhoneAlt,
   FaEnvelope,
   FaMapMarkerAlt,
   FaClock,
@@ -14,7 +14,8 @@ import {
   FaCcMastercard,
   FaUniversity,
   FaArrowUp,
-  FaCreditCard
+  FaCreditCard,
+  FaCompass
 } from 'react-icons/fa';
 import './Footer.css';
 
@@ -39,20 +40,19 @@ const Footer = () => {
 
   const quickLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Services', href: '/services' },
-    { name: 'Become Provider', href: '/become-provider' },
-    { name: 'About Us', href: '/about' }
+    { name: 'Explore Services', href: '/services' },
+    { name: 'About Service Sphere', href: '/about' },
+    { name: 'Customer Support', href: '/customer-support' },
+    { name: 'Become a Provider', href: '/provider/register' }
   ];
 
   const popularServices = [
-    { name: 'House Cleaning', href: '/services?category=home-cleaning' },
-    { name: 'Plumbing', href: '/services?category=plumbing' },
-    { name: 'Electrical', href: '/services?category=electrical' },
+    { name: 'Home Cleaning', href: '/services?category=home-cleaning' },
+    { name: 'Plumbing Repairs', href: '/services?category=plumbing' },
+    { name: 'Electrical Works', href: '/services?category=electrical' },
     { name: 'Beauty & Wellness', href: '/services?category=beauty' },
-    { name: 'Fitness', href: '/services?category=fitness' },
-    { name: 'Photography', href: '/services?category=photography' },
-    { name: 'Tutoring', href: '/services?category=tutoring' },
-    { name: 'Event Planning', href: '/services?category=event-planning' }
+    { name: 'Carpentry Services', href: '/services?category=carpentry' },
+    { name: 'Painting & Decor', href: '/services?category=painting' }
   ];
 
   const socialLinks = [
@@ -62,70 +62,75 @@ const Footer = () => {
     { icon: FaLinkedinIn, href: '#', label: 'LinkedIn' }
   ];
 
-  const paymentMethods = [
-    { icon: FaUniversity, label: 'UPI' },
-    { icon: FaCcVisa, label: 'Visa' },
-    { icon: FaCcMastercard, label: 'Mastercard' },
-    { icon: FaCreditCard, label: 'Razorpay' }
-  ];
-
   return (
     <>
-      <footer className="footer">
-        {/* Compact Footer Content */}
-        <div className="py-3">
+      <footer className="footer border-top border-dark">
+        <div className="py-5">
           <Container>
-            <Row>
-              {/* About Section */}
-              <Col md={3} className="mb-3">
-                <h5 className="mb-2">Service Sphere</h5>
-                <p className="text-white-50 small mb-3">
-                  Trusted platform connecting customers with verified professionals 
-                  for home and personal services.
+            <Row className="gy-4">
+              {/* Brand & About */}
+              <Col lg={4} md={6}>
+                <div className="d-flex align-items-center gap-2 mb-3">
+                  <div
+                    className="rounded-3 d-flex align-items-center justify-content-center text-white"
+                    style={{
+                      width: '34px',
+                      height: '34px',
+                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                    }}
+                  >
+                    <FaCompass size={18} />
+                  </div>
+                  <h5 className="mb-0 fw-bold text-white fs-5">Service Sphere</h5>
+                </div>
+                <p className="text-white-50 small mb-4 pe-lg-4" style={{ lineHeight: '1.7' }}>
+                  The leading on-demand services marketplace connecting verified home service professionals with households across the city. Reliable, insured, and background-checked.
                 </p>
-                
-                {/* Social Media Icons */}
-                <div className="d-flex gap-2 mb-3">
+
+                <div className="d-flex gap-2 mb-4">
                   {socialLinks.map((social, index) => (
                     <a
                       key={index}
                       href={social.href}
-                      className={`social-icon text-white d-flex align-items-center justify-content-center rounded-circle ${social.label.toLowerCase()}`}
-                      style={{ width: '30px', height: '30px' }}
+                      className="social-icon text-white text-decoration-none"
                       aria-label={social.label}
                     >
-                      <social.icon size={12} />
+                      <social.icon size={13} />
                     </a>
                   ))}
                 </div>
 
-                {/* Payment Methods */}
                 <div>
-                  <h6 className="text-white-50 small mb-2">Payment Methods</h6>
-                  <div className="d-flex gap-2 flex-wrap">
-                    {paymentMethods.map((payment, index) => (
-                      <div
-                        key={index}
-                        className="payment-method p-1 rounded d-flex align-items-center justify-content-center"
-                        style={{ width: '32px', height: '20px' }}
-                        title={payment.label}
-                      >
-                        <payment.icon size={14} className="text-white" />
-                      </div>
-                    ))}
+                  <span className="text-white-50 small d-block mb-2 text-uppercase tracking-wider fw-semibold">
+                    Supported Payments
+                  </span>
+                  <div className="d-flex gap-2">
+                    <span className="payment-method px-2 py-1 text-white-50" title="UPI">
+                      <FaUniversity size={16} />
+                    </span>
+                    <span className="payment-method px-2 py-1 text-white-50" title="Visa">
+                      <FaCcVisa size={16} />
+                    </span>
+                    <span className="payment-method px-2 py-1 text-white-50" title="Mastercard">
+                      <FaCcMastercard size={16} />
+                    </span>
+                    <span className="payment-method px-2 py-1 text-white-50" title="Card / Netbanking">
+                      <FaCreditCard size={16} />
+                    </span>
                   </div>
                 </div>
               </Col>
 
-              {/* Quick Links */}
-              <Col md={3} className="mb-3">
-                <h6 className="mb-2">Quick Links</h6>
-                <Nav className="flex-column">
+              {/* Navigation Links */}
+              <Col lg={2} md={6} sm={6}>
+                <h6 className="text-white fw-bold mb-3">Navigation</h6>
+                <Nav className="flex-column gap-2">
                   {quickLinks.map((link, index) => (
                     <Nav.Link
                       key={index}
-                      href={link.href}
-                      className="text-white-50 text-decoration-none mb-1 p-0 quick-link"
+                      as={Link}
+                      to={link.href}
+                      className="text-white-50 text-decoration-none p-0 quick-link small"
                     >
                       {link.name}
                     </Nav.Link>
@@ -133,15 +138,16 @@ const Footer = () => {
                 </Nav>
               </Col>
 
-              {/* Popular Services */}
-              <Col md={3} className="mb-3">
-                <h6 className="mb-2">Popular Services</h6>
-                <Nav className="flex-column">
+              {/* Top Categories */}
+              <Col lg={3} md={6} sm={6}>
+                <h6 className="text-white fw-bold mb-3">Popular Services</h6>
+                <Nav className="flex-column gap-2">
                   {popularServices.map((service, index) => (
                     <Nav.Link
                       key={index}
-                      href={service.href}
-                      className="text-white-50 text-decoration-none mb-1 p-0 quick-link"
+                      as={Link}
+                      to={service.href}
+                      className="text-white-50 text-decoration-none p-0 quick-link small"
                     >
                       {service.name}
                     </Nav.Link>
@@ -149,61 +155,56 @@ const Footer = () => {
                 </Nav>
               </Col>
 
-              {/* Contact & Support */}
-              <Col md={3} className="mb-3">
-                <h6 className="mb-2">Contact & Support</h6>
-                
-                {/* Contact Information */}
-                <div className="contact-info mb-3">
-                  <div className="d-flex align-items-center mb-2">
-                    <FaPhone className="text-primary me-2" size={12} />
-                    <span className="text-white-50 small">+91 9579939421</span>
+              {/* Contact Info */}
+              <Col lg={3} md={6}>
+                <h6 className="text-white fw-bold mb-3">Direct Support</h6>
+                <div className="d-flex flex-column gap-3 small text-white-50">
+                  <div className="d-flex align-items-center gap-2">
+                    <FaPhoneAlt className="text-primary" size={13} />
+                    <span>+91 95799 39421</span>
                   </div>
-                  <div className="d-flex align-items-center mb-2">
-                    <FaEnvelope className="text-primary me-2" size={12} />
-                    <span className="text-white-50 small">support@servicesphere.com</span>
+                  <div className="d-flex align-items-center gap-2">
+                    <FaEnvelope className="text-primary" size={13} />
+                    <span>support@servicesphere.com</span>
                   </div>
-                  <div className="d-flex align-items-center mb-2">
-                    <FaMapMarkerAlt className="text-primary me-2" size={12} />
-                    <span className="text-white-50 small">Pune, Maharashtra</span>
+                  <div className="d-flex align-items-start gap-2">
+                    <FaMapMarkerAlt className="text-primary mt-1" size={13} />
+                    <span>Tech Hub Park, Pune, Maharashtra 411001</span>
                   </div>
-                  <div className="d-flex align-items-center mb-3">
-                    <FaClock className="text-primary me-2" size={12} />
-                    <span className="text-white-50 small">Mon–Sat 9am–8pm</span>
+                  <div className="d-flex align-items-center gap-2">
+                    <FaClock className="text-primary" size={13} />
+                    <span>Mon – Sat: 8:00 AM – 9:00 PM</span>
                   </div>
-                </div>
-
-                {/* Customer Support Link */}
-                <div>
-                  <h6 className="text-white-50 small mb-2">Customer Support</h6>
-                  <Nav.Link 
-                    as={Link} 
-                    to="/customer-support" 
-                    className="text-white-50 text-decoration-none mb-0 p-0 quick-link"
-                  >
-                    Customer Support
-                  </Nav.Link>
                 </div>
               </Col>
             </Row>
           </Container>
         </div>
 
-        {/* Minimal Copyright Section */}
-        <div className="bg-dark bg-opacity-50 py-2 border-top border-secondary">
+        {/* Bottom Subfooter */}
+        <div className="py-3 border-top border-secondary border-opacity-25 bg-black bg-opacity-30">
           <Container>
-            <Row>
-              <Col className="text-center">
-                <small className="text-white-50">
-                  © 2026 Service Sphere. All rights reserved.
-                </small>
-              </Col>
-            </Row>
+            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 text-white-50 small">
+              <div>© {new Date().getFullYear()} Service Sphere Inc. All rights reserved.</div>
+              <div className="d-flex gap-3">
+                <Link to="/about" className="text-white-50 text-decoration-none">
+                  Privacy Policy
+                </Link>
+                <span>•</span>
+                <Link to="/about" className="text-white-50 text-decoration-none">
+                  Terms of Service
+                </Link>
+                <span>•</span>
+                <Link to="/customer-support" className="text-white-50 text-decoration-none">
+                  Help Center
+                </Link>
+              </div>
+            </div>
           </Container>
         </div>
       </footer>
 
-      {/* Scroll to Top Button */}
+      {/* Floating Scroll-to-Top Button */}
       <button
         className={`scroll-to-top ${showScrollTop ? 'show' : ''}`}
         onClick={scrollToTop}

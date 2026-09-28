@@ -24,10 +24,11 @@ const app = express();
 // ========================================
 
 app.use(
-helmet({
-crossOriginResourcePolicy: false
-})
+  helmet({
+    crossOriginResourcePolicy: false
+  })
 );
+app.use(express.json());
 
 // ========================================
 // CORS CONFIGURATION
@@ -79,20 +80,20 @@ app.use(cors({
 // ========================================
 
 mongoose
-.connect(config.mongodbUri)
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+  .connect(config.mongodbUri)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // ========================================
 // HEALTH CHECK
 // ========================================
 
 app.get('/api/health', (req, res) => {
-res.status(200).json({
-status: 'OK',
-message: 'Service Sphere API is running',
-timestamp: new Date().toISOString()
-});
+  res.status(200).json({
+    status: 'OK',
+    message: 'Service Sphere API is running',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // ========================================
@@ -100,10 +101,10 @@ timestamp: new Date().toISOString()
 // ========================================
 
 app.get('/api/routes', (req, res) => {
-res.status(200).json({
-success: true,
-message: 'Routes loaded successfully'
-});
+  res.status(200).json({
+    success: true,
+    message: 'Routes loaded successfully'
+  });
 });
 
 // ========================================
@@ -140,10 +141,10 @@ console.log('=== ALL ROUTES REGISTERED ===');
 // ========================================
 
 const limiter = rateLimit({
-windowMs: 15 * 60 * 1000,
-max: process.env.NODE_ENV === 'development' ? 1000 : 100,
-standardHeaders: true,
-legacyHeaders: false
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'development' ? 1000 : 100,
+  standardHeaders: true,
+  legacyHeaders: false
 });
 
 app.use('/api', limiter);
@@ -153,12 +154,12 @@ app.use('/api', limiter);
 // ========================================
 
 app.use((err, req, res, next) => {
-console.error(err.stack);
+  console.error(err.stack);
 
-res.status(500).json({
-success: false,
-message: err.message || 'Internal Server Error'
-});
+  res.status(500).json({
+    success: false,
+    message: err.message || 'Internal Server Error'
+  });
 });
 
 // ========================================
@@ -166,10 +167,10 @@ message: err.message || 'Internal Server Error'
 // ========================================
 
 app.use('*', (req, res) => {
-res.status(404).json({
-success: false,
-message: 'Route not found'
-});
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
 });
 
 // ========================================
@@ -179,7 +180,7 @@ message: 'Route not found'
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
-console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 // ========================================
@@ -187,14 +188,14 @@ console.log(`Server running on port ${PORT}`);
 // ========================================
 
 process.on('SIGTERM', () => {
-console.log('SIGTERM received');
+  console.log('SIGTERM received');
 
-server.close(() => {
-mongoose.connection.close(false, () => {
-console.log('MongoDB connection closed');
-process.exit(0);
-});
-});
+  server.close(() => {
+    mongoose.connection.close(false, () => {
+      console.log('MongoDB connection closed');
+      process.exit(0);
+    });
+  });
 });
 
 module.exports = app;

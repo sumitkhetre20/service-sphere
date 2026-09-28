@@ -46,116 +46,117 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <Router>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <div className="d-flex flex-column min-vh-100">
             <Navbar />
             <main className="flex-grow-1">
               <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/services/:id" element={<ServiceDetails />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/customer-support" element={<CustomerSupport />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/customer/register" element={<CustomerRegister />} />
-              <Route path="/provider/register" element={<ProviderRegister />} />
-              
-              {/* Customer Protected Routes */}
-              <Route path="/customer/dashboard" element={
-                <ProtectedRoute role="customer">
-                  <CustomerDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/customer/bookings" element={
-                <ProtectedRoute role="customer">
-                  <CustomerBookings />
-                </ProtectedRoute>
-              } />
-              <Route path="/customer/profile" element={
-                <ProtectedRoute role="customer">
-                  <CustomerProfile />
-                </ProtectedRoute>
-              } />
-              
-              {/* Provider Protected Routes */}
-              <Route path="/provider/dashboard" element={
-                <ProtectedRoute role="provider">
-                  <ProviderDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/bookings" element={
-                <ProtectedRoute role="provider">
-                  <ManageBookings />
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/services" element={
-                <ProtectedRoute role="provider">
-                  <ServiceList />
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/add-service" element={
-                <ProtectedRoute role="provider">
-                  <AddService />
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/edit-service/:id" element={
-                <ProtectedRoute role="provider">
-                  <EditService />
-                </ProtectedRoute>
-              } />
-              <Route path="/provider/profile" element={
-                <ProtectedRoute role="provider">
-                  <ProviderProfile />
-                </ProtectedRoute>
-              } />
-              
-              {/* Admin Protected Routes */}
-              <Route path="/admin/dashboard" element={
-                <ProtectedRoute role="admin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/users" element={
-                <ProtectedRoute role="admin">
-                  <ManageUsers />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/services" element={
-                <ProtectedRoute role="admin">
-                  <AdminServices />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/bookings" element={
-                <ProtectedRoute role="admin">
-                  <AdminManageBookings />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin/profile" element={
-                <ProtectedRoute role="admin">
-                  <AdminProfile />
-                </ProtectedRoute>
-              } />
-              
-              {/* Fallback Route */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-          <Footer />
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-        </div>
-      </Router>
-    </AuthProvider>
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/services/:id" element={<ServiceDetails />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/customer-support" element={<CustomerSupport />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Navigate to="/customer/register" replace />} />
+                <Route path="/customer/register" element={<CustomerRegister />} />
+                <Route path="/provider/register" element={<ProviderRegister />} />
+
+                {/* Customer Protected Routes */}
+                <Route path="/customer/dashboard" element={
+                  <ProtectedRoute role="customer">
+                    <CustomerDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/customer/bookings" element={
+                  <ProtectedRoute role="customer">
+                    <CustomerBookings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/customer/profile" element={
+                  <ProtectedRoute role="customer">
+                    <CustomerProfile />
+                  </ProtectedRoute>
+                } />
+
+                {/* Provider Protected Routes */}
+                <Route path="/provider/dashboard" element={
+                  <ProtectedRoute role="provider">
+                    <ProviderDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/provider/bookings" element={
+                  <ProtectedRoute role="provider">
+                    <ManageBookings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/provider/services" element={
+                  <ProtectedRoute role="provider">
+                    <ServiceList />
+                  </ProtectedRoute>
+                } />
+                <Route path="/provider/add-service" element={
+                  <ProtectedRoute role="provider">
+                    <AddService />
+                  </ProtectedRoute>
+                } />
+                <Route path="/provider/edit-service/:id" element={
+                  <ProtectedRoute role="provider">
+                    <EditService />
+                  </ProtectedRoute>
+                } />
+                <Route path="/provider/profile" element={
+                  <ProtectedRoute role="provider">
+                    <ProviderProfile />
+                  </ProtectedRoute>
+                } />
+
+                {/* Admin Protected Routes */}
+                <Route path="/admin/dashboard" element={
+                  <ProtectedRoute role="admin">
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <ProtectedRoute role="admin">
+                    <ManageUsers />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/services" element={
+                  <ProtectedRoute role="admin">
+                    <AdminServices />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/bookings" element={
+                  <ProtectedRoute role="admin">
+                    <AdminManageBookings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/profile" element={
+                  <ProtectedRoute role="admin">
+                    <AdminProfile />
+                  </ProtectedRoute>
+                } />
+
+                {/* Fallback Route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
+            <Footer />
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
+          </div>
+        </Router>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

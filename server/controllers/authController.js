@@ -23,13 +23,13 @@ const register = async (req, res) => {
   try {
     console.log('=== REGISTRATION REQUEST ===');
     console.log('Request body:', req.body);
-    
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
+        message: errors.array().map(({ msg }) => msg).join('. '),
         errors: errors.array()
       });
     }
@@ -64,7 +64,7 @@ const register = async (req, res) => {
   } catch (error) {
     console.error('Registration error:', error);
     console.error('Error stack:', error.stack);
-    
+
     // Handle duplicate key error
     if (error.code === 11000) {
       return res.status(409).json({
@@ -80,7 +80,7 @@ const register = async (req, res) => {
       console.log('Mongoose validation errors:', errors);
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
+        message: errors.join('. '),
         errors
       });
     }
@@ -186,7 +186,7 @@ const updateProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('Update profile error:', error);
-    
+
     // Handle validation errors
     if (error.name === 'ValidationError') {
       return res.status(400).json({
